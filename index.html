@@ -62,7 +62,7 @@
           <input id="videoInput" name="video" type="file" accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/mpeg,audio/wav,audio/x-m4a,.mp4,.mov,.webm,.m4a,.mp3,.wav" hidden required />
           <span class="upload-circle">↑</span><strong id="fileDropTitle">Обрати відео або аудіо</strong><span id="fileDropText">MP4, MOV, WEBM, M4A, MP3, WAV · до 2 ГБ</span>
         </label>
-        <div class="privacy-note"><strong>Відео не зберігається.</strong> Браузер локально стискає аудіодоріжку до невеликих фрагментів, у Groq відправляється лише звук. Після транскрипції аудіо ніде не зберігається.</div>
+        <div class="privacy-note"><strong>Відео не зберігається.</strong> Chrome локально читає аудіодоріжку та ріже її на невеликі WAV-фрагменти. У Groq відправляється лише звук, після транскрипції аудіо ніде не зберігається.</div>
         <button id="uploadSubmit" class="btn btn-primary full" type="submit">Завантажити та проаналізувати</button>
       </form>
     </div>
@@ -70,8 +70,7 @@
 
   <div id="toast" class="toast" hidden></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/mediabunny@1.55.1/dist/bundles/mediabunny.cjs"></script>
   <script src="config.js"></script>
-  <script src="app-loader.js?v=20260822-2006"></script>
+  <script src="app-loader.js?v=20260822-2018"></script>
 </body>
 </html>
