@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <div id="bootScreen" class="boot-screen"><div class="boot-card"><div class="brand-mark">Y</div><div class="spinner"></div><p>Завантажуємо робочий простір…</p></div></div>
@@ -25,15 +25,15 @@
   </div>
   <div id="uploadModal" class="modal-backdrop" hidden><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">НОВИЙ ДЗВІНОК</span><h2>Завантажити запис</h2></div><button class="icon-btn" data-close-modal aria-label="Закрити">×</button></div><form id="uploadForm" class="form-stack">
     <div class="form-grid"><label>Назва<input name="title" required placeholder="Наприклад, Weekly Юрчак"></label><label>Дата<input name="callDate" type="date" required></label></div>
-    <label id="fileDrop" class="file-drop"><input id="mediaInput" type="file" hidden required accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/x-m4a,audio/mpeg,audio/wav,audio/webm,audio/ogg,.mp4,.mov,.webm,.m4a,.mp3,.wav,.ogg"><span class="upload-icon">↑</span><strong id="fileTitle">Обрати відео або аудіо</strong><small id="fileMeta">MP4, MOV, WEBM, M4A, MP3, WAV · до 2 ГБ</small></label>
-    <div class="privacy-box"><b>Відео тимчасове.</b> Файл завантажується в приватне сховище лише для транскрипції та автоматично видаляється після неї. У базі лишається тільки текст і результат аналізу.</div>
+    <label id="fileDrop" class="file-drop"><input id="mediaInput" type="file" hidden required accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/x-m4a,audio/mpeg,audio/wav,audio/webm,audio/ogg,.mp4,.mov,.webm,.m4a,.mp3,.wav,.ogg"><span class="upload-icon">↑</span><strong id="fileTitle">Обрати відео або аудіо</strong><small id="fileMeta">MP4, MOV, WEBM, M4A, MP3, WAV · до 500 МБ</small></label>
+    <div class="privacy-box"><b>Запис не зберігається назавжди.</b> Великий файл автоматично ділиться на приватні частини до 44 МБ. Сервер читає їх як один запис, витягує аудіо для транскрипції, а після неї всі тимчасові частини видаляються. У базі лишаються тільки текст і результат аналізу.</div>
     <div id="uploadProgress" class="upload-progress" hidden><div class="progress-head"><span id="uploadStage">Завантажуємо…</span><b id="uploadPercent">0%</b></div><div class="progress-track"><div id="uploadBar" class="progress-fill"></div></div></div>
     <button id="uploadButton" class="btn primary full" type="submit">Завантажити та проаналізувати</button>
   </form></div></div>
   <div id="toast" class="toast" hidden></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4.3.1/dist/tus.min.js"></script>
-  <script src="config.js?v=3"></script>
-  <script src="app.js?v=3"></script>
+  <script src="config.js?v=4"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
