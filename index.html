@@ -14,9 +14,9 @@
 <body>
   <div id="setupScreen" class="center-screen" hidden><div class="auth-card"><div class="logo large">Y</div><h1>Нужно подключить Supabase</h1><p>Сайт уже готов. Заполни два значения в <code>config.js</code>, затем обнови страницу.</p></div></div>
   <div id="authScreen" class="center-screen" hidden>
-    <div class="auth-card"><div class="logo large">Y</div><p class="kicker">ЮРЧАК</p><h1>Созвоны команды</h1><p class="subcopy">Войди, чтобы открыть записи, разборы и задачи.</p>
+    <div class="auth-card"><div class="logo large">Y</div><p class="kicker">ЮРЧАК</p><h1>Созвоны команды</h1><p class="subcopy">Войди или создай аккаунт — подтверждение почты не требуется.</p>
       <form id="authForm" class="stack-form"><label>Email<input name="email" type="email" autocomplete="email" required placeholder="name@company.com" /></label><label>Пароль<input name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="••••••••" /></label><div id="authError" class="form-error" hidden></div><button class="primary-button full" type="submit">Войти</button></form>
-      <button id="signUpButton" class="text-button">Первый вход? Создать аккаунт</button><p class="auth-note">Доступ к данным получают только email, заранее добавленные в команду.</p>
+      <button id="signUpButton" class="text-button">Первый вход? Создать аккаунт</button><p class="auth-note">Регистрация открыта для любого email.</p>
     </div>
   </div>
   <div id="app" class="app" hidden>
@@ -25,5 +25,5 @@
   </div>
   <div id="uploadModal" class="modal-backdrop" hidden><div class="modal"><div class="modal-head"><div><p class="kicker">НОВЫЙ СОЗВОН</p><h2>Загрузить запись</h2></div><button class="icon-button" data-close-modal aria-label="Закрыть">×</button></div><form id="uploadForm" class="stack-form"><label>Название<input name="title" required placeholder="Например, Weekly Юрчак" /></label><label>Дата<input name="meetingDate" type="date" required /></label><label id="fileDrop" class="file-drop"><input id="videoInput" name="video" type="file" accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/mpeg,audio/wav,audio/x-m4a,.mp4,.mov,.webm,.m4a,.mp3,.wav" hidden required /><span class="upload-icon">↑</span><strong id="fileDropTitle">Выбрать видео</strong><span id="fileDropText">MP4, MOV, WEBM, M4A, MP3 · до 2 ГБ</span></label><div class="info-strip">Обычно видео вообще не уходит в AI: браузер локально извлекает аудиодорожку и отправляет только звук. После обработки временный аудиофайл удаляется; остаются транскрипция, разбор и задачи.</div><button id="uploadSubmit" class="primary-button full" type="submit">Загрузить и разобрать</button></form></div></div>
   <div id="toast" class="toast" hidden></div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="signup-fix.js"></script><script src="app.js"></script>
 </body></html>
