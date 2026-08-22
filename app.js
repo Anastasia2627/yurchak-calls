@@ -217,7 +217,7 @@
         const part=media.parts[i]; submit.textContent=`Загружаем звук ${i+1}/${media.parts.length}…`;
         const result=await uploadPartWithRetry(part,(partLoaded)=>{ const pct=25+35*((uploadedBytes+partLoaded)/Math.max(1,totalBytes)); setLocalProgress(meeting.id,pct,`Загружаем звук ${i+1}/${media.parts.length}`); });
         uploadedBytes+=part.blob.size;
-        uploaded.push({index:i,name:result.name,uri:result.uri,mime_type:part.mimeType,start_seconds:part.start,end_seconds:part.end,size_bytes:part.blob.size});
+        uploaded.push({index:i,name:result.name,uri:result.uri,mime_type:result.mimeType||part.mimeType,start_seconds:part.start,end_seconds:part.end,size_bytes:part.blob.size});
       }
       localProgress.delete(meeting.id);
       await pipeline('register_files',{meetingId:meeting.id,files:uploaded,durationSeconds:media.duration,processedSizeBytes:totalBytes});
@@ -232,10 +232,12 @@
   async function prepareMedia(file, meetingId, submit) {
     const type=normalizeMime(file.type||mimeFromName(file.name));
     if(type.startsWith('audio/')){
-      const info=await inspectMedia(file).catch(()=>({duration:null,audio:true,video:false}));
+      let info;
+      try { info=await inspectMedia(file); }
+      catch { info={duration:await browserMediaDuration(file).catch(()=>0),audio:true,video:false}; }
       const duration=Number(info.duration||0);
-      if(duration> AUDIO_CHUNK_SECONDS) return extractAudioParts(file,duration,meetingId,submit);
-      return {duration:duration||estimateAudioDuration(file),parts:[{blob:file,fileName:safePartName(file.name,1,'audio'),mimeType:type,start:0,end:duration||0}],usedAudioExtraction:false};
+      if(type==='audio/m4a' || type==='audio/mp4' || duration>AUDIO_CHUNK_SECONDS) return extractAudioParts(file,duration||estimateAudioDuration(file),meetingId,submit);
+      return {duration:duration||estimateAudioDuration(file),parts:[{blob:file,fileName:file.name,mimeType:type,start:0,end:duration||0}],usedAudioExtraction:false};
     }
     try {
       const info=await inspectMedia(file); if(!info.audio)throw new Error('В файле нет аудиодорожки.');
@@ -260,18 +262,23 @@
       submit.textContent=`Извлекаем звук ${i+1}/${total}…`; setLocalProgress(meetingId,5+18*(i/total),`Извлекаем звук ${i+1}/${total}`);
       let result;
       try { result=await convertAudioChunk(M,file,start,end,p=>setLocalProgress(meetingId,5+18*((i+p)/total),`Извлекаем звук ${i+1}/${total}`),false); }
-      catch(first){ console.warn('Fast audio conversion failed',first); result=await convertAudioChunk(M,file,start,end,p=>setLocalProgress(meetingId,5+18*((i+p)/total),`Оптимизируем звук ${i+1}/${total}`),true); }
-      parts.push({blob:result,fileName:`${baseName(file.name)}-audio-${String(i+1).padStart(2,'0')}.m4a`,mimeType:'audio/mp4',start,end});
+      catch(first){ console.warn('AAC remux unavailable, using PCM WAV',first); result=await convertAudioChunk(M,file,start,end,p=>setLocalProgress(meetingId,5+18*((i+p)/total),`Оптимизируем звук ${i+1}/${total}`),true); }
+      parts.push({blob:result.blob,fileName:`${baseName(file.name)}-audio-${String(i+1).padStart(2,'0')}.${result.extension}`,mimeType:result.mimeType,start,end});
       await sleep(0);
     }
     return {duration,parts,usedAudioExtraction:true};
   }
 
-  async function convertAudioChunk(M,file,start,end,onProgress,forceTranscode){
-    const input=new M.Input({formats:M.ALL_FORMATS,source:new M.BlobSource(file)}), target=new M.BufferTarget(), output=new M.Output({format:new M.Mp4OutputFormat({fastStart:'in-memory'}),target});
-    const conversion=await M.Conversion.init({input,output,video:{discard:true},audio:forceTranscode?{numberOfChannels:1,sampleRate:32000,forceTranscode:true}:undefined,trim:{start,end},showWarnings:false});
+  async function convertAudioChunk(M,file,start,end,onProgress,useWavFallback){
+    const input=new M.Input({formats:M.ALL_FORMATS,source:new M.BlobSource(file)}), target=new M.BufferTarget();
+    const format=useWavFallback?new M.WavOutputFormat():new M.AdtsOutputFormat();
+    const output=new M.Output({format,target});
+    const conversion=await M.Conversion.init({input,output,video:{discard:true},audio:useWavFallback?{codec:'pcm-s16',numberOfChannels:1,sampleRate:16000,forceTranscode:true}:undefined,trim:{start,end},showWarnings:false});
     if(!conversion.isValid)throw new Error('Аудиодорожку нельзя преобразовать в браузере.'); conversion.onProgress=p=>onProgress(Number(p||0)); await conversion.execute();
-    if(!target.buffer)throw new Error('Не удалось получить аудиофайл.'); return new Blob([target.buffer],{type:'audio/mp4'});
+    if(!target.buffer)throw new Error('Не удалось получить аудиофайл.');
+    const mimeType=String(format.mimeType|| (useWavFallback?'audio/wav':'audio/aac'));
+    const extension=String(format.fileExtension|| (useWavFallback?'.wav':'.aac')).replace(/^\./,'');
+    return {blob:new Blob([target.buffer],{type:mimeType}),mimeType,extension};
   }
 
   async function uploadPartWithRetry(part,onProgress){
@@ -279,7 +286,9 @@
     for(let attempt=1;attempt<=3;attempt++){
       try{
         const s=await pipeline('create_upload',{fileName:part.fileName,fileSize:part.blob.size,mimeType:part.mimeType});
-        return await xhrUpload(s.uploadUrl,part.blob,part.mimeType,onProgress);
+        const mime=s.mimeType||part.mimeType;
+        const uploaded=await xhrUpload(s.uploadUrl,part.blob,mime,onProgress);
+        return {...uploaded,mimeType:mime};
       }catch(err){lastErr=err;if(attempt<3)await sleep(1500*Math.pow(2,attempt-1));}
     }
     throw lastErr||new Error('Не удалось загрузить аудио.');
@@ -345,8 +354,8 @@
   function prettyBytes(bytes){const u=['Б','КБ','МБ','ГБ'];let i=0,n=Number(bytes||0);while(n>=1024&&i<u.length-1){n/=1024;i++;}return`${n.toFixed(i>1?1:0)} ${u[i]}`;}
   function baseName(name){return name.replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9а-яА-ЯёЁ_-]+/g,'-').slice(0,70)||'meeting';}
   function safePartName(name,i,type){return`${baseName(name)}-${type}-${String(i).padStart(2,'0')}.${type==='audio'?'m4a':'mp4'}`;}
-  function mimeFromName(name){const x=name.toLowerCase();if(x.endsWith('.m4a'))return'audio/mp4';if(x.endsWith('.mp3'))return'audio/mpeg';if(x.endsWith('.wav'))return'audio/wav';if(x.endsWith('.mov'))return'video/quicktime';if(x.endsWith('.webm'))return'video/webm';return'video/mp4';}
-  function normalizeMime(v){const m=String(v||'').toLowerCase().split(';')[0];return({'video/quicktime':'video/mov','audio/x-m4a':'audio/mp4'}[m]||m||'video/mp4');}
+  function mimeFromName(name){const x=name.toLowerCase();if(x.endsWith('.m4a'))return'audio/m4a';if(x.endsWith('.mp3'))return'audio/mpeg';if(x.endsWith('.wav'))return'audio/wav';if(x.endsWith('.mov'))return'video/quicktime';if(x.endsWith('.webm'))return'video/webm';return'video/mp4';}
+  function normalizeMime(v){const m=String(v||'').toLowerCase().split(';')[0];return({'video/quicktime':'video/mov','audio/x-m4a':'audio/m4a','audio/mp4':'audio/m4a'}[m]||m||'video/mp4');}
   function isSupportedName(f){return/^(video|audio)\//.test(f.type)||/\.(mp4|mov|webm|m4a|mp3|wav)$/i.test(f.name);}
   function estimateAudioDuration(file){const br=128000;return Math.round(file.size*8/br);}
   function browserMediaDuration(file){return new Promise((resolve,reject)=>{const el=document.createElement(file.type.startsWith('audio/')?'audio':'video'),url=URL.createObjectURL(file);el.preload='metadata';el.onloadedmetadata=()=>{const d=el.duration;URL.revokeObjectURL(url);Number.isFinite(d)?resolve(d):reject(new Error('Нет длительности'));};el.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Не читается'));};el.src=url;});}
