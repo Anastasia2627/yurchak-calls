@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#1769ff" />
+  <title>Юрчак — созвоны</title>
+  <meta name="description" content="Созвоны проекта Юрчак: транскрипции, краткие итоги и задачи." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="auth" class="auth-wrap">
+    <form id="authForm" class="auth-card">
+      <div class="logo">Y</div>
+      <div class="eyebrow">ЮРЧАК</div>
+      <h1>Созвоны команды</h1>
+      <p>Все записи, итоги и задачи в одном месте.</p>
+      <label>Email<input id="email" type="email" required autocomplete="email" placeholder="name@company.com"></label>
+      <label>Пароль<input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="••••••••"></label>
+      <div id="authError" class="error" hidden></div>
+      <button class="primary full" type="submit">Войти</button>
+      <button id="signup" class="link-btn" type="button">Создать аккаунт</button>
+    </form>
+  </div>
+
+  <div id="shell" class="shell" hidden>
+    <header class="topbar">
+      <div class="brand"><div class="logo small">Y</div><div><strong>Юрчак</strong><span>созвоны</span></div></div>
+      <nav><button data-view="meetings" class="tab active">Созвоны</button><button data-view="tasks" class="tab">Задачи <b id="taskCount" hidden></b></button></nav>
+      <div class="account"><span id="userEmail"></span><button id="logout" class="link-btn">Выйти</button></div>
+    </header>
+    <main id="main"></main>
+  </div>
+
+  <div id="modal" class="modal-bg" hidden>
+    <div class="modal">
+      <button id="closeModal" class="close" aria-label="Закрыть">×</button>
+      <div class="eyebrow">НОВЫЙ СОЗВОН</div>
+      <h2>Загрузить запись</h2>
+      <form id="uploadForm">
+        <label>Название<input id="meetingTitle" required placeholder="Например, Weekly Юрчак"></label>
+        <label>Дата<input id="meetingDate" type="date" required></label>
+        <label class="drop">
+          <input id="video" type="file" accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/mpeg,audio/wav,audio/x-m4a,.mp4,.mov,.webm,.m4a,.mp3,.wav" hidden required>
+          <span class="upload-mark">↑</span><strong id="fileName">Выбрать видео</strong><small id="fileMeta">MP4, MOV, WEBM, M4A, MP3 · до 2 ГБ</small>
+        </label>
+        <div class="note">Видео нужно только для обработки. После разбора в базе остаются транскрипция, темы и задачи — само видео не сохраняется.</div>
+        <button id="uploadBtn" class="primary full" type="submit">Загрузить и разобрать</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
