@@ -1,9 +1,8 @@
 (async()=>{
   try{
-    const r=await fetch(`app.js?v=${Date.now()}`,{cache:'no-store'});
+    const r=await fetch(`app-groq.js?v=${Date.now()}`,{cache:'no-store'});
     if(!r.ok) throw new Error(`Не вдалося завантажити застосунок: HTTP ${r.status}`);
-    let code=await r.text();
-    code=code.replace("doneTasks=tasks.filter(t=>t.status==='done';","doneTasks=tasks.filter(t=>t.status==='done');");
+    const code=await r.text();
     (0,eval)(code);
   }catch(e){
     console.error(e);
