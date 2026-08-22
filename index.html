@@ -3,59 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#1769ff" />
+  <meta name="theme-color" content="#1467ff" />
   <title>Юрчак — созвоны</title>
-  <meta name="description" content="Созвоны проекта Юрчак: транскрипции, краткие итоги и задачи." />
+  <meta name="description" content="Записи созвонов проекта Юрчак: транскрипция, темы, решения и задачи." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="auth" class="auth-wrap">
-    <form id="authForm" class="auth-card">
-      <div class="logo">Y</div>
-      <div class="eyebrow">ЮРЧАК</div>
-      <h1>Созвоны команды</h1>
-      <p>Все записи, итоги и задачи в одном месте.</p>
-      <label>Email<input id="email" type="email" required autocomplete="email" placeholder="name@company.com"></label>
-      <label>Пароль<input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="••••••••"></label>
-      <div id="authError" class="error" hidden></div>
-      <button class="primary full" type="submit">Войти</button>
-      <button id="signup" class="link-btn" type="button">Создать аккаунт</button>
-    </form>
-  </div>
-
-  <div id="shell" class="shell" hidden>
-    <header class="topbar">
-      <div class="brand"><div class="logo small">Y</div><div><strong>Юрчак</strong><span>созвоны</span></div></div>
-      <nav><button data-view="meetings" class="tab active">Созвоны</button><button data-view="tasks" class="tab">Задачи <b id="taskCount" hidden></b></button></nav>
-      <div class="account"><span id="userEmail"></span><button id="logout" class="link-btn">Выйти</button></div>
-    </header>
-    <main id="main"></main>
-  </div>
-
-  <div id="modal" class="modal-bg" hidden>
-    <div class="modal">
-      <button id="closeModal" class="close" aria-label="Закрыть">×</button>
-      <div class="eyebrow">НОВЫЙ СОЗВОН</div>
-      <h2>Загрузить запись</h2>
-      <form id="uploadForm">
-        <label>Название<input id="meetingTitle" required placeholder="Например, Weekly Юрчак"></label>
-        <label>Дата<input id="meetingDate" type="date" required></label>
-        <label class="drop">
-          <input id="video" type="file" accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/mpeg,audio/wav,audio/x-m4a,.mp4,.mov,.webm,.m4a,.mp3,.wav" hidden required>
-          <span class="upload-mark">↑</span><strong id="fileName">Выбрать видео</strong><small id="fileMeta">MP4, MOV, WEBM, M4A, MP3 · до 2 ГБ</small>
-        </label>
-        <div class="note">Видео нужно только для обработки. После разбора в базе остаются транскрипция, темы и задачи — само видео не сохраняется.</div>
-        <button id="uploadBtn" class="primary full" type="submit">Загрузить и разобрать</button>
-      </form>
+  <div id="setupScreen" class="center-screen" hidden><div class="auth-card"><div class="logo large">Y</div><h1>Нужно подключить Supabase</h1><p>Сайт уже готов. Заполни два значения в <code>config.js</code>, затем обнови страницу.</p></div></div>
+  <div id="authScreen" class="center-screen" hidden>
+    <div class="auth-card"><div class="logo large">Y</div><p class="kicker">ЮРЧАК</p><h1>Созвоны команды</h1><p class="subcopy">Войди, чтобы открыть записи, разборы и задачи.</p>
+      <form id="authForm" class="stack-form"><label>Email<input name="email" type="email" autocomplete="email" required placeholder="name@company.com" /></label><label>Пароль<input name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="••••••••" /></label><div id="authError" class="form-error" hidden></div><button class="primary-button full" type="submit">Войти</button></form>
+      <button id="signUpButton" class="text-button">Первый вход? Создать аккаунт</button><p class="auth-note">Доступ к данным получают только email, заранее добавленные в команду.</p>
     </div>
   </div>
-
+  <div id="app" class="app" hidden>
+    <aside class="sidebar"><div class="brand-row"><div class="logo">Y</div><div><strong>Юрчак</strong><span>Созвоны</span></div></div><nav><button class="nav-button active" data-view="meetings">Созвоны</button><button class="nav-button" data-view="tasks">Задачи <span id="openTaskBadge" class="nav-badge" hidden></span></button></nav><div class="sidebar-footer"><div id="userEmail" class="user-email"></div><button id="logoutButton" class="text-button left">Выйти</button></div></aside>
+    <main class="content"><header class="mobile-header"><div class="brand-row"><div class="logo">Y</div><strong>Юрчак</strong></div><button id="mobileMenuButton" class="icon-button" aria-label="Меню">☰</button></header><section id="meetingsView" class="view"></section><section id="meetingView" class="view" hidden></section><section id="tasksView" class="view" hidden></section></main>
+  </div>
+  <div id="uploadModal" class="modal-backdrop" hidden><div class="modal"><div class="modal-head"><div><p class="kicker">НОВЫЙ СОЗВОН</p><h2>Загрузить запись</h2></div><button class="icon-button" data-close-modal aria-label="Закрыть">×</button></div><form id="uploadForm" class="stack-form"><label>Название<input name="title" required placeholder="Например, Weekly Юрчак" /></label><label>Дата<input name="meetingDate" type="date" required /></label><label id="fileDrop" class="file-drop"><input id="videoInput" name="video" type="file" accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/mpeg,audio/wav,audio/x-m4a,.mp4,.mov,.webm,.m4a,.mp3,.wav" hidden required /><span class="upload-icon">↑</span><strong id="fileDropTitle">Выбрать видео</strong><span id="fileDropText">MP4, MOV, WEBM, M4A, MP3 · до 2 ГБ</span></label><div class="info-strip">Обычно видео вообще не уходит в AI: браузер локально извлекает аудиодорожку и отправляет только звук. После обработки временный аудиофайл удаляется; остаются транскрипция, разбор и задачи.</div><button id="uploadSubmit" class="primary-button full" type="submit">Загрузить и разобрать</button></form></div></div>
   <div id="toast" class="toast" hidden></div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script>
+</body></html>
