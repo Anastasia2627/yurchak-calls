@@ -1,20 +1,25 @@
 (async()=>{
   try{
+    if(!globalThis.Mediabunny) throw new Error('Медіамодуль не завантажився. Онови сторінку ще раз.');
+
     const r=await fetch(`app-groq.js?v=${Date.now()}`,{cache:'no-store'});
     if(!r.ok) throw new Error(`Не вдалося завантажити застосунок: HTTP ${r.status}`);
     let code=await r.text();
 
+    const mediaPattern=/async function mediaLib\(\)\{[\s\S]*?\n  \}\n  async function inspectMedia/;
+    if(!mediaPattern.test(code)) throw new Error('Не вдалося підготувати медіамодуль.');
     code=code.replace(
-      /async function mediaLib\(\)\{[\s\S]*?\n  \}\n  async function inspectMedia/,
+      mediaPattern,
       "async function mediaLib(){\n"+
-      "    if(!mediaLibPromise) mediaLibPromise=import('https://cdn.jsdelivr.net/npm/mediabunny@1.55.1/+esm');\n"+
-      "    return mediaLibPromise;\n"+
+      "    return globalThis.Mediabunny;\n"+
       "  }\n"+
       "  async function inspectMedia"
     );
 
+    const chunkPattern=/async function makeM4aChunk\(M,file,start,end,onProgress\)\{[\s\S]*?\n  \}\n\n  async function transcribePart/;
+    if(!chunkPattern.test(code)) throw new Error('Не вдалося підготувати аудіоконвертацію.');
     code=code.replace(
-      /async function makeM4aChunk\(M,file,start,end,onProgress\)\{[\s\S]*?\n  \}\n\n  async function transcribePart/,
+      chunkPattern,
       "async function makeM4aChunk(M,file,start,end,onProgress){\n"+
       "    const input=new M.Input({formats:M.ALL_FORMATS,source:new M.BlobSource(file)}),target=new M.BufferTarget();\n"+
       "    const output=new M.Output({format:new M.WavOutputFormat(),target});\n"+
