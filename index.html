@@ -3,74 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#1d68f5" />
+  <meta name="theme-color" content="#1f67f2" />
   <title>Юрчак — база дзвінків</title>
-  <meta name="description" content="Записи дзвінків, транскрипції, рішення та завдання проєкту Юрчак." />
+  <meta name="description" content="Записи дзвінків, транскрипції, рішення та завдання команди Юрчак." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
-  <div id="setupScreen" class="auth-shell" hidden>
-    <div class="auth-card"><div class="brand-mark large">Y</div><h1>Потрібне підключення</h1><p>Заповни налаштування Supabase у <code>config.js</code>.</p></div>
-  </div>
-
-  <div id="authScreen" class="auth-shell" hidden>
-    <div class="auth-card">
-      <div class="brand-mark large">Y</div>
-      <div class="eyebrow">ЮРЧАК</div>
-      <h1>База дзвінків</h1>
-      <p class="auth-lead">Записи, короткі підсумки, рішення та завдання команди в одному місці.</p>
-      <form id="authForm" class="form-stack">
-        <label>Email<input name="email" type="email" autocomplete="email" required placeholder="name@company.com" /></label>
-        <label>Пароль<input name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="••••••••" /></label>
-        <div id="authError" class="form-error" hidden></div>
-        <button class="btn btn-primary full" type="submit">Увійти</button>
-      </form>
-      <button id="signUpButton" class="link-button">Створити акаунт</button>
-      <p class="auth-hint">Після реєстрації можна одразу користуватися сервісом.</p>
-    </div>
-  </div>
-
+  <div id="bootScreen" class="boot-screen"><div class="boot-card"><div class="brand-mark">Y</div><div class="spinner"></div><p>Завантажуємо робочий простір…</p></div></div>
+  <section id="authScreen" class="auth-screen" hidden><div class="auth-panel">
+    <div class="auth-brand"><div class="brand-mark large">Y</div><div><b>Юрчак</b><span>База дзвінків</span></div></div>
+    <div class="auth-copy"><span class="eyebrow">РОБОЧИЙ ПРОСТІР</span><h1>Дзвінки, рішення й задачі — без ручних конспектів</h1><p>Завантажуйте запис Zoom. Сервіс збере транскрипцію, короткий підсумок, теми, рішення та action items.</p></div>
+    <form id="authForm" class="auth-form"><label>Email<input name="email" type="email" required autocomplete="email" placeholder="name@company.com"></label><label>Пароль<input name="password" type="password" required minlength="6" autocomplete="current-password" placeholder="••••••••"></label><div id="authError" class="form-error" hidden></div><button class="btn primary full" type="submit">Увійти</button></form>
+    <button id="signupButton" class="link-btn">Створити акаунт</button><p class="auth-hint">Після реєстрації можна одразу користуватися сервісом.</p>
+  </div></section>
   <div id="app" class="app-shell" hidden>
-    <aside class="sidebar">
-      <div class="brand"><div class="brand-mark">Y</div><div><strong>Юрчак</strong><span>База дзвінків</span></div></div>
-      <nav class="side-nav">
-        <button class="nav-item active" data-view="overview"><span class="nav-icon">⌂</span>Огляд</button>
-        <button class="nav-item" data-view="meetings"><span class="nav-icon">◉</span>Дзвінки</button>
-        <button class="nav-item" data-view="tasks"><span class="nav-icon">✓</span>Завдання <span id="openTaskBadge" class="nav-badge" hidden></span></button>
-      </nav>
-      <div class="sidebar-foot"><div id="userEmail" class="user-email"></div><button id="logoutButton" class="link-button muted">Вийти</button></div>
-    </aside>
-
-    <main class="main-area">
-      <header class="mobile-topbar"><div class="brand"><div class="brand-mark">Y</div><strong>Юрчак</strong></div><button id="mobileMenuButton" class="icon-btn">☰</button></header>
-      <section id="overviewView" class="view"></section>
-      <section id="meetingsView" class="view" hidden></section>
-      <section id="meetingView" class="view" hidden></section>
-      <section id="tasksView" class="view" hidden></section>
-    </main>
+    <aside id="sidebar" class="sidebar"><div class="brand"><div class="brand-mark">Y</div><div><b>Юрчак</b><span>База дзвінків</span></div></div><nav class="nav"><button class="nav-item active" data-view="overview"><span>⌂</span>Огляд</button><button class="nav-item" data-view="calls"><span>◉</span>Дзвінки</button><button class="nav-item" data-view="tasks"><span>✓</span>Завдання <i id="taskBadge" class="badge" hidden></i></button></nav><div class="sidebar-footer"><div id="userEmail" class="user-email"></div><button id="logoutButton" class="link-btn muted">Вийти</button></div></aside>
+    <main class="main"><header class="mobile-header"><div class="brand compact"><div class="brand-mark">Y</div><b>Юрчак</b></div><button id="menuButton" class="icon-btn" aria-label="Меню">☰</button></header><section id="overviewView" class="view"></section><section id="callsView" class="view" hidden></section><section id="callView" class="view" hidden></section><section id="tasksView" class="view" hidden></section></main>
   </div>
-
-  <div id="uploadModal" class="modal-backdrop" hidden>
-    <div class="modal-card">
-      <div class="modal-head"><div><div class="eyebrow">НОВИЙ ДЗВІНОК</div><h2>Завантажити запис</h2></div><button class="icon-btn" data-close-modal>×</button></div>
-      <form id="uploadForm" class="form-stack">
-        <div class="form-grid"><label>Назва<input name="title" required placeholder="Наприклад, Weekly Юрчак" /></label><label>Дата<input name="meetingDate" type="date" required /></label></div>
-        <label id="fileDrop" class="file-drop">
-          <input id="videoInput" name="video" type="file" accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/mpeg,audio/wav,audio/x-m4a,.mp4,.mov,.webm,.m4a,.mp3,.wav" hidden required />
-          <span class="upload-circle">↑</span><strong id="fileDropTitle">Обрати відео або аудіо</strong><span id="fileDropText">MP4, MOV, WEBM, M4A, MP3, WAV · до 2 ГБ</span>
-        </label>
-        <div class="privacy-note"><strong>Відео не зберігається.</strong> Chrome локально читає аудіодоріжку та ріже її на невеликі WAV-фрагменти. У Groq відправляється лише звук, після транскрипції аудіо ніде не зберігається.</div>
-        <button id="uploadSubmit" class="btn btn-primary full" type="submit">Завантажити та проаналізувати</button>
-      </form>
-    </div>
-  </div>
-
+  <div id="uploadModal" class="modal-backdrop" hidden><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">НОВИЙ ДЗВІНОК</span><h2>Завантажити запис</h2></div><button class="icon-btn" data-close-modal aria-label="Закрити">×</button></div><form id="uploadForm" class="form-stack">
+    <div class="form-grid"><label>Назва<input name="title" required placeholder="Наприклад, Weekly Юрчак"></label><label>Дата<input name="callDate" type="date" required></label></div>
+    <label id="fileDrop" class="file-drop"><input id="mediaInput" type="file" hidden required accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/x-m4a,audio/mpeg,audio/wav,audio/webm,audio/ogg,.mp4,.mov,.webm,.m4a,.mp3,.wav,.ogg"><span class="upload-icon">↑</span><strong id="fileTitle">Обрати відео або аудіо</strong><small id="fileMeta">MP4, MOV, WEBM, M4A, MP3, WAV · до 2 ГБ</small></label>
+    <div class="privacy-box"><b>Відео тимчасове.</b> Файл завантажується в приватне сховище лише для транскрипції та автоматично видаляється після неї. У базі лишається тільки текст і результат аналізу.</div>
+    <div id="uploadProgress" class="upload-progress" hidden><div class="progress-head"><span id="uploadStage">Завантажуємо…</span><b id="uploadPercent">0%</b></div><div class="progress-track"><div id="uploadBar" class="progress-fill"></div></div></div>
+    <button id="uploadButton" class="btn primary full" type="submit">Завантажити та проаналізувати</button>
+  </form></div></div>
   <div id="toast" class="toast" hidden></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="app-loader.js?v=20260822-2028"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4.3.1/dist/tus.min.js"></script>
+  <script src="config.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
