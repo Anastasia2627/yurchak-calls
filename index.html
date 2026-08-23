@@ -9,7 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="v1-clean.css?v=1" />
 </head>
 <body>
   <div id="bootScreen" class="boot-screen"><div class="boot-card"><div class="brand-mark">Y</div><div class="spinner"></div><p>Завантажуємо робочий простір…</p></div></div>
@@ -26,9 +27,7 @@
   <div id="uploadModal" class="modal-backdrop" hidden><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">НОВИЙ ДЗВІНОК</span><h2>Завантажити запис</h2></div><button class="icon-btn" data-close-modal aria-label="Закрити">×</button></div><form id="uploadForm" class="form-stack">
     <div class="form-grid"><label>Назва<input name="title" required placeholder="Наприклад, Weekly Юрчак"></label><label>Дата<input name="callDate" type="date" required></label></div>
     <label>Учасники / ролі <span class="optional">необов'язково</span><input name="analysisHints" placeholder="Настя — дизайн; Віка — Shopify; Аня — маркетинг"></label>
-    <p class="field-hint">Це допомагає AI точніше розподіляти задачі. Якщо не знаєш або не хочеш заповнювати — пропускай.</p>
     <label id="fileDrop" class="file-drop"><input id="mediaInput" type="file" hidden required accept="video/mp4,video/quicktime,video/webm,audio/mp4,audio/x-m4a,audio/mpeg,audio/wav,audio/webm,audio/ogg,.mp4,.mov,.webm,.m4a,.mp3,.wav,.ogg"><span class="upload-icon">↑</span><strong id="fileTitle">Обрати відео або аудіо</strong><small id="fileMeta">MP4, MOV, WEBM, M4A, MP3, WAV · до 500 МБ</small></label>
-    <div class="privacy-box"><b>Запис не зберігається назавжди.</b> Великий файл автоматично ділиться на приватні частини до 44 МБ. Після транскрипції тимчасове медіа видаляється; у базі лишаються текст і результат аналізу.</div>
     <div id="uploadProgress" class="upload-progress" hidden><div class="progress-head"><span id="uploadStage">Завантажуємо…</span><b id="uploadPercent">0%</b></div><div class="progress-track"><div id="uploadBar" class="progress-fill"></div></div></div>
     <button id="uploadButton" class="btn primary full" type="submit">Завантажити та проаналізувати</button>
   </form></div></div>
@@ -36,6 +35,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4.3.1/dist/tus.min.js"></script>
   <script src="config.js?v=5"></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
+  <script src="ui-cleanup.js?v=1"></script>
 </body>
 </html>
