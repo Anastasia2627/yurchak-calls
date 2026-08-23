@@ -1,0 +1,28 @@
+.auth-copy,.auth-hint,.field-hint,.privacy-box{display:none!important}
+#overviewView .hero .eyebrow,#overviewView .hero p,#callsView .page-head .eyebrow,#callsView .page-head p,#tasksView .page-head .eyebrow,#tasksView .page-head p{display:none!important}
+.boot-card p{display:none!important}
+.form-stack .optional{display:none!important}
+
+.auth-screen .auth-panel{width:min(420px,100%);padding:30px}
+.auth-screen .auth-brand{margin-bottom:22px}
+.auth-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:13px;background:#f2f6fc;margin-bottom:20px}
+.auth-tab{border:0;border-radius:10px;padding:10px 12px;background:transparent;color:#7285a3;font-weight:700;font-size:12px}
+.auth-tab.active{background:#fff;color:#10213e;box-shadow:0 2px 10px rgba(30,77,143,.08)}
+.simple-auth-form{display:grid;gap:13px}
+.simple-auth-form label{display:grid;gap:7px;font-size:11px;font-weight:700;color:#526783}
+.simple-auth-form input{width:100%;border:1px solid #dce8f8;border-radius:12px;background:#fff;color:#10213e;padding:12px 13px;outline:none}
+.simple-auth-form input:focus{border-color:#98befa;box-shadow:0 0 0 3px #e8f1ff}
+.simple-auth-form .btn{margin-top:2px}
+.auth-inline-error{font-size:11px;padding:10px 12px;border-radius:10px;background:#fff0f1;color:#b8474c}
+
+#overviewView .hero{padding:24px 28px;align-items:center}
+#overviewView .hero h1{font-size:30px;margin:0}
+#overviewView .hero-actions{align-items:center}
+
+#callView .state-card.processing-copy>p{display:none!important}
+
+@media(max-width:560px){
+  .auth-screen .auth-panel{padding:22px}
+  #overviewView .hero{padding:20px}
+  #overviewView .hero h1{font-size:26px}
+}
