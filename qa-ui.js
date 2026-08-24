@@ -6,7 +6,7 @@
   let sb = null;
 
   const style = document.createElement('style');
-  style.textContent = '.call-ai-panel{margin:24px 0;background:#fff;border:1px solid #d9e6fb;border-radius:22px;padding:24px}.call-ai-head{margin-bottom:14px}.call-ai-head h2{margin:0;font-size:20px}.call-ai-form{display:grid;grid-template-columns:1fr auto;gap:10px}.call-ai-input{border:1px solid #cfe0fb;border-radius:13px;padding:13px 15px;background:#f9fbff;color:#10213d;outline:none;font:inherit}.call-ai-input:focus{border-color:#2268f2}.call-ai-thread{display:grid;gap:10px;margin-top:16px}.call-ai-question{justify-self:end;max-width:78%;background:#2268f2;color:#fff;border-radius:14px;padding:10px 13px;font-size:13px;line-height:1.5}.call-ai-answer{max-width:92%;background:#f3f7fe;border-radius:14px;padding:13px 15px;color:#1d3455;font-size:13px;line-height:1.65;white-space:pre-wrap}.call-ai-answer.error{background:#fff1f1;color:#c84646}@media(max-width:700px){.call-ai-form{grid-template-columns:1fr}.call-ai-send{width:100%}.call-ai-question,.call-ai-answer{max-width:100%}}';
+  style.textContent = '.call-ai-panel{margin:24px 0;background:#fff;border:1px solid #d9e6fb;border-radius:22px;padding:24px}.call-ai-head{margin-bottom:14px}.call-ai-head h2{margin:0;font-size:20px}.call-ai-form{display:grid;grid-template-columns:1fr auto;gap:10px}.call-ai-input{border:1px solid #cfe0fb;border-radius:13px;padding:13px 15px;background:#f9fbff;color:#10213d;outline:none;font:inherit}.call-ai-input:focus{border-color:#2268f2}.call-ai-thread{display:grid;gap:14px;margin-top:16px}.call-ai-turn{display:grid;gap:10px}.call-ai-question{justify-self:end;max-width:78%;background:#2268f2;color:#fff;border-radius:14px;padding:10px 13px;font-size:13px;line-height:1.5}.call-ai-answer{max-width:92%;background:#f3f7fe;border-radius:14px;padding:13px 15px;color:#1d3455;font-size:13px;line-height:1.65;white-space:pre-wrap}.call-ai-answer.error{background:#fff1f1;color:#c84646}.call-ai-answer.loading{min-width:54px}@media(max-width:700px){.call-ai-form{grid-template-columns:1fr}.call-ai-send{width:100%}.call-ai-question,.call-ai-answer{max-width:100%}}';
   document.head.appendChild(style);
 
   function client() {
@@ -99,12 +99,22 @@
     const question = String(input.value || '').trim();
     if (!question) return;
 
+    thread.querySelectorAll('.call-ai-turn.failed').forEach(el => el.remove());
     thread.hidden = false;
-    thread.insertAdjacentHTML('beforeend', `<div class="call-ai-question">${esc(question)}</div>`);
+
+    const turn = document.createElement('div');
+    turn.className = 'call-ai-turn';
+    turn.innerHTML = `<div class="call-ai-question">${esc(question)}</div>`;
     const answerEl = document.createElement('div');
     answerEl.className = 'call-ai-answer loading';
     answerEl.textContent = '...';
-    thread.appendChild(answerEl);
+    turn.appendChild(answerEl);
+    thread.appendChild(turn);
+
+    while (thread.querySelectorAll('.call-ai-turn').length > 6) {
+      thread.querySelector('.call-ai-turn')?.remove();
+    }
+
     input.value = '';
     button.disabled = true;
 
@@ -128,6 +138,7 @@
       answerEl.classList.remove('loading');
       answerEl.textContent = data.answer;
     } catch (err) {
+      turn.classList.add('failed');
       answerEl.classList.remove('loading');
       answerEl.classList.add('error');
       answerEl.textContent = err?.message || 'Не вдалося отримати відповідь.';
