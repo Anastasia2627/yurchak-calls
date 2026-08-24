@@ -90,7 +90,7 @@
   function loadQa() {
     if (document.querySelector('script[data-call-qa]')) return;
     const s = document.createElement('script');
-    s.src = 'qa-ui.js?v=3';
+    s.src = 'qa-ui.js?v=4';
     s.dataset.callQa = '1';
     document.body.appendChild(s);
   }
