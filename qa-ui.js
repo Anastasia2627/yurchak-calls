@@ -18,21 +18,61 @@
     return sb;
   }
 
+  function rememberCall(id) {
+    activeCallId = id || '';
+    if (activeCallId) sessionStorage.setItem('yurchak-active-call-id', activeCallId);
+  }
+
   document.addEventListener('click', e => {
     const open = e.target.closest('[data-open]');
     const source = e.target.closest('[data-source]');
     const id = open?.dataset?.open || source?.dataset?.source;
-    if (id) {
-      activeCallId = id;
-      sessionStorage.setItem('yurchak-active-call-id', id);
-    }
+    if (id) rememberCall(id);
   }, true);
+
+  async function resolveCurrentCallId() {
+    const api = client();
+    if (!api) return '';
+
+    if (activeCallId) {
+      const { data } = await api.from('calls_v2').select('id').eq('id', activeCallId).maybeSingle();
+      if (data?.id) return data.id;
+    }
+
+    const title = document.querySelector('#callView .report-header h1')?.textContent?.trim() || '';
+    if (!title) return '';
+
+    const { data, error } = await api
+      .from('calls_v2')
+      .select('id,title,duration_seconds,status,updated_at')
+      .eq('title', title)
+      .eq('status', 'ready')
+      .order('updated_at', { ascending: false })
+      .limit(20);
+    if (error || !data?.length) return '';
+
+    let chosen = data[0];
+    const metaText = [...document.querySelectorAll('#callView .report-meta span')]
+      .map(x => x.textContent || '')
+      .find(x => /хв/.test(x));
+    const minutes = Number((metaText || '').match(/(\d+)/)?.[1] || 0);
+
+    if (minutes && data.length > 1) {
+      chosen = [...data].sort((a, b) => {
+        const da = Math.abs(Number(a.duration_seconds || 0) - minutes * 60);
+        const db = Math.abs(Number(b.duration_seconds || 0) - minutes * 60);
+        return da - db;
+      })[0];
+    }
+
+    rememberCall(chosen.id);
+    return chosen.id;
+  }
 
   function inject() {
     const callView = document.getElementById('callView');
     if (!callView || callView.hidden || !callView.querySelector('.report-header')) return;
     if (callView.querySelector('.call-ai-panel')) return;
-    if (!activeCallId) return;
 
     const panel = document.createElement('section');
     panel.className = 'call-ai-panel';
@@ -57,7 +97,7 @@
     const button = panel.querySelector('.call-ai-send');
     const thread = panel.querySelector('.call-ai-thread');
     const question = String(input.value || '').trim();
-    if (!question || !activeCallId) return;
+    if (!question) return;
 
     thread.hidden = false;
     thread.insertAdjacentHTML('beforeend', `<div class="call-ai-question">${esc(question)}</div>`);
@@ -70,6 +110,8 @@
 
     try {
       const api = client();
+      const callId = await resolveCurrentCallId();
+      if (!callId) throw new Error('Не вдалося визначити дзвінок.');
       const { data: { session } } = await api.auth.getSession();
       if (!session) throw new Error('Сесія завершилась.');
       const r = await fetch(`${cfg.supabaseUrl}/functions/v1/call-qa-v1`, {
@@ -79,7 +121,7 @@
           apikey: cfg.supabasePublishableKey,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ callId: activeCallId, question })
+        body: JSON.stringify({ callId, question })
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data?.ok) throw new Error(data?.error || 'AI не зміг відповісти.');
