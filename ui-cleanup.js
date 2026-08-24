@@ -84,17 +84,20 @@
   function trimRenderedCopy() {
     const heroTitle = document.querySelector('#overviewView .hero h1');
     if (heroTitle && heroTitle.textContent.trim() !== 'Огляд') heroTitle.textContent = 'Огляд';
-
     document.querySelectorAll('#overviewView .hero p,#callsView .page-head p,#tasksView .page-head p,.field-hint,.privacy-box,.auth-hint').forEach(el => el.remove());
+  }
 
-    document.querySelectorAll('#callView .state-card').forEach(card => {
-      const title = card.querySelector('h2')?.textContent?.trim();
-      if (title === 'Запис обробляється') card.classList.add('processing-copy');
-    });
+  function loadQa() {
+    if (document.querySelector('script[data-call-qa]')) return;
+    const s = document.createElement('script');
+    s.src = 'qa-ui.js?v=2';
+    s.dataset.callQa = '1';
+    document.body.appendChild(s);
   }
 
   buildAuth();
   trimRenderedCopy();
+  loadQa();
   const observer = new MutationObserver(trimRenderedCopy);
   observer.observe(document.body, { childList: true, subtree: true });
 })();
